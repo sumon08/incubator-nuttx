@@ -2191,6 +2191,13 @@ config ARCH_BOARD_CUSTOM
 		Don't see the board you want?  You must first select the exact MCU part
 		number, then the boards supporting that part will be available for selection.
 
+config ARCH_BOARD_LOGGER_DEMO
+	bool "Custom logger demo board"
+	depends on ARCH_CHIP_STM32F103RC
+	select ARCH_HAVE_LEDS
+	---help---
+		Custom logger board for demo development.
+
 endchoice
 
 if ARCH_BOARD_CUSTOM
@@ -2470,6 +2477,7 @@ config ARCH_BOARD
 	default "sim"                      if ARCH_BOARD_SIM
 	default "moxa"                     if ARCH_BOARD_MOXA
 	default "spresense"                if ARCH_BOARD_SPRESENSE
+	default "logger-demo"              if ARCH_BOARD_LOGGER_DEMO
 
 comment "Common Board Options"
 
@@ -3171,6 +3179,9 @@ source "boards/z80/z80/z80sim/Kconfig"
 endif
 if ARCH_BOARD_BL602EVB
 source "boards/risc-v/bl602/bl602evb/Kconfig"
+endif
+if ARCH_BOARD_LOGGER_DEMO
+source "boards/arm/stm32/logger-demo/Kconfig"
 endif
 
 comment "Board-Common Options"
