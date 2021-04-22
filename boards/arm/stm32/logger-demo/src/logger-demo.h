@@ -80,7 +80,24 @@
 
 #endif
 
+#if defined(CONFIG_CCLINK)
 
+#if !defined(CONFIG_CCLINK_CHANNEL_ONE)
+#define CCLINK_TX_ONE_PIN      GPIO_PIN1
+#define CCLINK_TX_ONE_PORT     GPIO_PORTA
+#endif
+
+#if !defined(CONFIG_CCLINK_CHANNEL_TWO)
+#define CCLINK_TX_TWO_PIN      GPIO_PIN1
+#define CCLINK_TX_TWO_PORT     GPIO_PORTA
+#endif
+
+#if !defined(CONFIG_CCLINK_CHANNEL_THREE)
+#define CCLINK_TX_THREE_PIN    GPIO_PIN1
+#define CCLINK_TX_THREE_PORT   GPIO_PORTA
+#endif
+
+#endif
 /* PWM */
 
 #define NUCLEOF103RB_PWMTIMER 1

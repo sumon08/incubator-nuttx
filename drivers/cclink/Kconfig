@@ -1,0 +1,87 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+menuconfig CCLINK
+	bool "Outback power interface support"
+	default n
+	---help---
+		Enable Outback power proprietary interface support.
+
+if CCLINK
+
+config CCLINK_CHANNEL_ONE
+	bool "Enable channel one support"
+	default n
+	---help---
+		Enable channel one support on Outback power interface.
+
+if CCLINK_CHANNEL_ONE
+
+config CCLINK_CHANNEL_ONE_TX_PIN
+	string "TX pin used to stream out data stream for channel one"
+	default "GPIO_PIN1" 
+	---help---
+		PIN name used as channel one tx pin.
+
+config CCLINK_CHANNEL_ONE_TX_PORT
+	string "Port name of tx pin"
+	default "GPIO_PORTA" 
+	---help---
+		Port name of TX pin used as channel one tx pin.
+
+endif # CCLINK_CHANNEL_ONE
+
+
+
+
+
+config CCLINK_CHANNEL_TWO
+	bool "Enable channel two support"
+	default n 
+	---help---
+		Enable channel two support on Outback power interface.
+
+if CCLINK_CHANNEL_TWO
+
+config CCLINK_CHANNEL_TWO_TX_PIN
+	string "TX pin used to stream out data stream for channel two"
+	default "GPIO_PIN1" 
+	---help---
+		PIN name used as channel two tx pin.
+
+config CCLINK_CHANNEL_TWO_TX_PORT
+	string "Port name of tx pin"
+	default "GPIO_PORTA" 
+	---help---
+		Port name of TX pin used as channel two tx pin.
+
+endif # CCLINK_CHANNEL_TWO
+
+
+
+
+config CCLINK_CHANNEL_THREE
+	bool "Enable channel three support"
+	default n 
+	---help---
+		Enable channel three support on Outback power interface.
+
+if CCLINK_CHANNEL_THREE
+
+config CCLINK_CHANNEL_THREE_TX_PIN
+	string "TX pin used to stream out data stream for channel three"
+	default "GPIO_PIN1" 
+	---help---
+		PIN name used as channel three tx pin.
+
+config CCLINK_CHANNEL_THREE_TX_PORT
+	string "Port name of tx pin"
+	default "GPIO_PORTA" 
+	---help---
+		Port name of TX pin used as channel three tx pin.
+		
+endif # CCLINK_CHANNEL_THREE
+
+endif # CCLINK

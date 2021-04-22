@@ -48,18 +48,18 @@
 #include <nuttx/fs/ioctl.h>
 #include <nuttx/irq.h>
 #include <nuttx/kmalloc.h>
-#include <nuttx/modem/sim800l.h>
+#include <nuttx/cclink/cclink.h>
 
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
 
 
-#ifdef CONFIG_MODEM_SIM800l
+#ifdef CONFIG_CCLINK
 
 /* Debug ********************************************************************/
 /* Non-standard debug that may be enabled just for testing the modem driver */
-#ifdef CONFIG_MODEM_SIM800L_DEBUG
+#ifdef CONFIG_MODEM_CCLINK_DEBUG
 #  define m_err     _err
 #  define m_info    _info
 #else
@@ -73,31 +73,31 @@
 
 /* The type of upper half driver state. */
 
-struct sim800l_upper
+struct cclink_upper
 {
   FAR char* path;     /* Registration path */
 
   /* The contained lower-half driver. */
 
-  FAR struct sim800l_lower* lower;
+  FAR struct cclink_lower* lower;
 };
 
 /****************************************************************************
  * Private Function Prototypes
  ****************************************************************************/
 
-static ssize_t sim800l_read (FAR struct file* filep,
+static ssize_t cclink_read (FAR struct file* filep,
                             FAR char* buffer,
                             size_t buflen);
-static ssize_t sim800l_write(FAR struct file* filep,
+static ssize_t cclink_write(FAR struct file* filep,
                             FAR const char* buffer,
                             size_t buflen);
-static int     sim800l_ioctl(FAR struct file* filep,
+static int     cclink_ioctl(FAR struct file* filep,
                             int cmd,
                             unsigned long arg);
 
 #ifndef CONFIG_DISABLE_POLL
-static int     sim800l_poll (FAR struct file* filep,
+static int     cclink_poll (FAR struct file* filep,
                             FAR struct pollfd* fds,
                             bool setup);
 #endif
@@ -106,16 +106,16 @@ static int     sim800l_poll (FAR struct file* filep,
  * Private Data
  ****************************************************************************/
 
-static const struct file_operations sim800l_fops =
+static const struct file_operations cclink_fops =
 {
   0,  /* open */
   0,            /* close */
-  sim800l_read,  /* read */
-  sim800l_write, /* write */
+  cclink_read,  /* read */
+  cclink_write, /* write */
   0,            /* seek */
-  sim800l_ioctl, /* ioctl */
+  cclink_ioctl, /* ioctl */
 #ifndef CONFIG_DISABLE_POLL
-  sim800l_poll,  /* poll */
+  cclink_poll,  /* poll */
 #endif
 };
 
@@ -124,29 +124,30 @@ static const struct file_operations sim800l_fops =
  ****************************************************************************/
 
 
-static ssize_t sim800l_read(FAR struct file* filep,
+static ssize_t cclink_read(FAR struct file* filep,
                            FAR char* buffer,
                            size_t len)
 {
   return 0; /* Return EOF */
 }
 
-static ssize_t sim800l_write(FAR struct file* filep,
+static ssize_t cclink_write(FAR struct file* filep,
                             FAR const char* buffer,
                             size_t len)
 {
   return len; /* Say that everything was written */
 }
 
-static int sim800l_ioctl(FAR struct file* filep,
+static int cclink_ioctl(FAR struct file* filep,
                         int cmd,
                         unsigned long arg)
 {
   FAR struct inode*         inode = filep->f_inode;
-  FAR struct sim800l_upper*  upper;
-  FAR struct sim800l_lower*  lower;
+  FAR struct cclink_upper*  upper;
+  FAR struct cclink_lower*  lower;
   int                       ret;
-  FAR struct sim800l_status* status;
+  FAR struct cclink_mx_status* status;
+  FAR struct cclink_mx_logpage* logpage;
 
   m_info("cmd: %d arg: %ld\n", cmd, arg);
   upper = inode->i_private;
@@ -161,10 +162,10 @@ static int sim800l_ioctl(FAR struct file* filep,
        * arg:         Ignored
        */
 
-    case MODEM_IOC_POWERON:
-      if (lower->ops->poweron)
+    case CCLINK_IOC_SCAN:
+      if (lower->ops->cclink_scan)
         {
-          ret = lower->ops->poweron(lower);
+          ret = lower->ops->cclink_scan(lower);
         }
       else
         {
@@ -178,10 +179,11 @@ static int sim800l_ioctl(FAR struct file* filep,
        * arg:         Ignored
        */
 
-    case MODEM_IOC_POWEROFF:
-      if (lower->ops->poweroff)
+    case CCLINK_IOC_GETLOGPAGE:
+      if (lower->ops->cclink_get_logpage)
         {
-          ret = lower->ops->poweroff(lower);
+          logpage = (FAR struct cclink_mx_logpage *) ((uintptr_t)arg);
+          ret = lower->ops->cclink_get_logpage(lower, logpage);
         }
       else
         {
@@ -190,21 +192,15 @@ static int sim800l_ioctl(FAR struct file* filep,
 
       break;
 
-      /* cmd:         sim800l_IOC_RESET
-       * Description:
-       * arg:         Ignored
-       */
-
-    case MODEM_IOC_RESET:
-      if (lower->ops->reset)
-        {
-          ret = lower->ops->reset(lower);
-        }
-      else
-        {
-          ret = -ENOSYS;
-        }
-
+    case CCLINK_IOC_CONFIG: 
+      if(lower->ops->cclink_init)
+      {
+        ret = lower->ops->cclink_init(lower);
+      }
+      else 
+      {
+        ret = -ENOSYS;
+      }
       break;
 
       /* cmd:         sim800l_IOC_GETSTATUS
@@ -212,13 +208,13 @@ static int sim800l_ioctl(FAR struct file* filep,
        * arg:         Writeable pointer to struct sim800l_status.
        */
 
-    case MODEM_IOC_GETSTATUS:
-      if (lower->ops->getstatus)
+    case CCLINK_IOC_GETSTATUS:
+      if (lower->ops->cclink_get_status)
         {
-          status = (FAR struct sim800l_status*) ((uintptr_t) arg);
+          status = (FAR struct cclink_mx_status *) ((uintptr_t) arg);
           if (status)
             {
-              ret = lower->ops->getstatus(lower, status);
+              ret = lower->ops->cclink_get_status(lower, status);
             }
           else
             {
@@ -236,16 +232,6 @@ static int sim800l_ioctl(FAR struct file* filep,
        * handler, if defined.
        */
 
-	case MODEM_IOC_INIT:
-	if(lower->ops->mdm_open)
-	{
-		ret = lower->ops->mdm_open(lower);
-	}
-	else
-	{
-		ret = -ENOSYS;
-	}
-	   break;
     default:
       m_info("Forwarding unrecognized cmd: %d arg: %ld\n", cmd, arg);
 
@@ -265,7 +251,7 @@ static int sim800l_ioctl(FAR struct file* filep,
 }
 
 #ifndef CONFIG_DISABLE_POLL
-static int sim800l_poll(FAR struct file* filep,
+static int cclink_poll(FAR struct file* filep,
                        FAR struct pollfd* fds,
                        bool setup)
 {
@@ -286,15 +272,15 @@ static int sim800l_poll(FAR struct file* filep,
  * Public Functions
  ****************************************************************************/
 
-FAR void* sim800l_register(FAR const char *path,
-                          FAR struct sim800l_lower *lower)
+FAR void* cclink_register(FAR const char *path,
+                          FAR struct cclink_lower *lower)
 {
-  FAR struct sim800l_upper *upper;
+  FAR struct cclink_upper *upper;
   int ret;
 
   DEBUGASSERT(path && lower);
 
-  upper = (FAR struct sim800l_upper*)kmm_zalloc(sizeof(struct sim800l_upper));
+  upper = (FAR struct cclink_upper*)kmm_zalloc(sizeof(struct cclink_upper));
   if (!upper)
     {
       m_err("ERROR: Upper half allocation failed\n");
@@ -309,7 +295,7 @@ FAR void* sim800l_register(FAR const char *path,
       goto errout_with_upper;
     }
 
-  ret = register_driver(path, &sim800l_fops, 0666, upper);
+  ret = register_driver(path, &cclink_fops, 0666, upper);
   if (ret < 0)
     {
       m_err("ERROR: register_driver failed: %d\n", ret);
@@ -328,20 +314,18 @@ errout:
   return NULL;
 }
 
-void sim800l_unregister(FAR void *handle)
+void cclink_unregister(FAR void *handle)
 {
-  FAR struct sim800l_upper *upper;
-  FAR struct sim800l_lower *lower;
+  FAR struct cclink_upper *upper;
+  FAR struct cclink_lower *lower;
 
-  upper = (FAR struct sim800l_upper*) handle;
+  upper = (FAR struct cclink_upper*) handle;
   DEBUGASSERT(upper != NULL);
   lower = upper->lower;
   DEBUGASSERT(lower != NULL);
 
   m_info("Unregistering: %s\n", upper->path);
 
-  DEBUGASSERT(lower->ops->poweroff);
-  (void) lower->ops->poweroff(lower);
 
   (void) unregister_driver(upper->path);
 
@@ -350,4 +334,4 @@ void sim800l_unregister(FAR void *handle)
 }
 
 
-#endif //CONFIG_MODEM_SIM800l
+#endif //CONFIG_CCLINK

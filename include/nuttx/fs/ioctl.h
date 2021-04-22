@@ -87,7 +87,9 @@
 #define _HIMEMBASE      (0x2f00) /* Himem device ioctl commands*/
 #define _EFUSEBASE      (0x3000) /* Efuse device ioctl commands*/
 #define _MTRIOBASE      (0x3100) /* Motor device ioctl commands*/
+#define _CCLINKBASE     (0x3200) /* Charge controller ioctl commands*/
 #define _WLIOCBASE      (0x8b00) /* Wireless modules ioctl network commands */
+
 
 /* boardctl() commands share the same number space */
 
@@ -449,6 +451,14 @@
 
 #define _MODEMIOCVALID(c) (_IOC_TYPE(c)==_MODEMBASE)
 #define _MODEMIOC(nr)     _IOC(_MODEMBASE,nr)
+
+
+/* CCLINK private ioctl definitions ******************************************/
+
+/* see nuttx/include/cclink/ioctl.h */
+
+#define _CCLINKIOCVALID(c) (_IOC_TYPE(c)==_CCLINKBASE)
+#define _CCLINKIOC(nr)     _IOC(_CCLINKBASE,nr)
 
 /* I2C driver ioctl definitions *********************************************/
 
