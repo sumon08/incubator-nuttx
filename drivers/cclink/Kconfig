@@ -84,4 +84,16 @@ config CCLINK_CHANNEL_THREE_TX_PORT
 		
 endif # CCLINK_CHANNEL_THREE
 
+config CCLINK_RX_PIN  
+	string "Common receive pin of the interface"
+	default "GPIO_PIN2"
+	---help---
+		Pin name for common RX pin of the interface.
+
+config CCLINK_RX_PORT 
+	string "Common RX pin port name"
+	default "GPIO_PORTA"
+	---help---
+		Port name of common rx pin
+
 endif # CCLINK

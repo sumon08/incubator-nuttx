@@ -52,10 +52,20 @@
  * driver state.  This type must be coercible to type 'ubxmdm_lower'.
  */
 
-// struct modem_sim800l_lower
-// {
-//   FAR const struct sim800l_ops *ops; /* Lower half operations */
-// };
+enum rx_state
+{
+  RX_STATE_DISABLED,
+  RX_STATE_ENABLED,
+  RX_STATE_SAMPLING,
+};
+
+struct cclink_mx
+{
+  bool rx_initialised;
+  bool tx_1_initialised;
+  bool tx_2_initialised;
+  bool tx_3_initialised;
+}
 
 /****************************************************************************
  * Private Function Prototypes
