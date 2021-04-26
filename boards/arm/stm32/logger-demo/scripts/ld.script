@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-/* The STM32F103RBT6 has 128Kb of FLASH beginning at address 0x0800:0000 and
- * 20Kb of SRAM.
+/* The STM32F103RCT6 has 256Kb of FLASH beginning at address 0x0800:0000 and
+ * 48Kb of SRAM.
  *
  * When booting from FLASH, FLASH memory is aliased to address 0x0000:0000
  * where the code expects to begin execution by jumping to the entry point in

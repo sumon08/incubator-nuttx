@@ -2193,7 +2193,7 @@ config ARCH_BOARD_CUSTOM
 
 config ARCH_BOARD_LOGGER_DEMO
 	bool "Custom logger demo board"
-	depends on ARCH_CHIP_STM32F103RC
+	depends on ARCH_CHIP_STM32F107RC
 	select ARCH_HAVE_LEDS
 	---help---
 		Custom logger board for demo development.

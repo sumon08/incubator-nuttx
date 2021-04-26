@@ -94,6 +94,8 @@
 
 #  elif defined(CONFIG_ARCH_CHIP_STM32F107VC)
 #    include "hardware/stm32f107v_pinmap.h"
+#  elif defined(CONFIG_ARCH_CHIP_STM32F107RC)
+#    include "hardware/stm32f107r_pinmap.h"
 #  else
 #    error "Unsupported STM32F10XXX chip"
 #  endif
