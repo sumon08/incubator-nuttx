@@ -2183,6 +2183,14 @@ config ARCH_BOARD_SIM
 		This port does not support interrupts or a real timer (and hence no
 		round robin scheduler)  Otherwise, it is complete.
 
+config ARCH_BOARD_DMD_CARD
+	bool "P10 dmd card"
+	depends on ARCH_CHIP_STM32F103C8
+	select ARCH_HAVE_BUTTONS
+	select ARCH_HAVE_LEDS
+	---help---
+		LED screen consist of P10 module. 
+
 config ARCH_BOARD_CUSTOM
 	bool "Custom development board"
 	---help---
@@ -2470,6 +2478,7 @@ config ARCH_BOARD
 	default "sim"                      if ARCH_BOARD_SIM
 	default "moxa"                     if ARCH_BOARD_MOXA
 	default "spresense"                if ARCH_BOARD_SPRESENSE
+	default "dmd-card" 				   if ARCH_BOARD_DMD_CARD
 
 comment "Common Board Options"
 
@@ -3171,6 +3180,10 @@ source "boards/z80/z80/z80sim/Kconfig"
 endif
 if ARCH_BOARD_BL602EVB
 source "boards/risc-v/bl602/bl602evb/Kconfig"
+endif
+
+if ARCH_BOARD_DMD_CARD
+source "boards/arm/stm32/dmd-card/Kconfig"
 endif
 
 comment "Board-Common Options"
